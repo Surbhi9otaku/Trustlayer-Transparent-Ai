@@ -1,123 +1,46 @@
 import { useState } from "react";
 
 function App() {
-  const [question, setQuestion] = useState("");
-  const [response, setResponse] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  const askAI = async () => {
-    if (!question.trim()) return;
-
-    setLoading(true);
-    setError("");
-    setResponse("");
-
+  const handleClick = async () => {
     try {
-      const res = await fetch(
-        "https://YOUR-BACKEND-URL.onrender.com/ask",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ question }),
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error("Server error");
-      }
-
+      setError("");
+      const res = await fetch("http://localhost:8000/");
       const data = await res.json();
-      setResponse(data.answer);
+      setMessage(data.message);
     } catch (err) {
-      console.error(err);
-      setError("Failed to connect to AI server.");
-    } finally {
-      setLoading(false);
+      setError("Backend not connected");
     }
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#0f172a",
-        color: "white",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        fontFamily: "Arial",
-      }}
-    >
-      <div
+    <div style={{ padding: "40px", fontFamily: "Arial" }}>
+      <h1>TrustLayer Transparent AI</h1>
+
+      <button
+        onClick={handleClick}
         style={{
-          width: "400px",
-          padding: "30px",
-          backgroundColor: "#1e293b",
-          borderRadius: "12px",
-          boxShadow: "0 0 20px rgba(0,0,0,0.5)",
+          padding: "10px 20px",
+          marginTop: "20px",
+          cursor: "pointer",
         }}
       >
-        <h2 style={{ marginBottom: "20px", textAlign: "center" }}>
-          TrustLayer – Transparent AI
-        </h2>
+        Test Backend
+      </button>
 
-        <input
-          type="text"
-          placeholder="Ask something..."
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "10px",
-            borderRadius: "6px",
-            border: "none",
-            marginBottom: "10px",
-          }}
-        />
+      {message && (
+        <div style={{ marginTop: "15px", color: "green" }}>
+          {message}
+        </div>
+      )}
 
-        <button
-          onClick={askAI}
-          style={{
-            width: "100%",
-            padding: "10px",
-            borderRadius: "6px",
-            border: "none",
-            backgroundColor: "#3b82f6",
-            color: "white",
-            cursor: "pointer",
-          }}
-        >
-          {loading ? "Thinking..." : "Ask AI"}
-        </button>
-
-        {response && (
-          <div
-            style={{
-              marginTop: "20px",
-              padding: "10px",
-              backgroundColor: "#334155",
-              borderRadius: "6px",
-            }}
-          >
-            <strong>AI Response:</strong>
-            <p>{response}</p>
-          </div>
-        )}
-
-        {error && (
-          <div
-            style={{
-              marginTop: "15px",
-              color: "red",
-            }}
-          >
-            {error}
-          </div>
-        )}
-      </div>
+      {error && (
+        <div style={{ marginTop: "15px", color: "red" }}>
+          {error}
+        </div>
+      )}
     </div>
   );
 }
