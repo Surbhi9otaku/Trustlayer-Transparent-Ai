@@ -1,11 +1,17 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
+import "./App.css";
 
 function App() {
   const [input, setInput] = useState("");
   const [result, setResult] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
 
   const analyzeText = async () => {
+    if (!input) return;
+
+    setLoading(true);
+    setResult(null);
+
     const response = await fetch("http://127.0.0.1:8000/analyze", {
       method: "POST",
       headers: {
@@ -16,35 +22,36 @@ function App() {
 
     const data = await response.json();
     setResult(data);
+    setLoading(false);
   };
 
   return (
-    <div style={{ padding: "40px", fontFamily: "Arial" }}>
-      <h1>TrustLayer AI Transparency Tool</h1>
+    <div className="page">
+      <div className="hero">
+        <h1 className="logo">TrustLayer</h1>
+        <p className="tagline">Transparent AI. Verifiable Decisions.</p>
 
-      <textarea
-        rows={4}
-        cols={50}
-        placeholder="Enter AI text here..."
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-      />
+        <div className="glass-card">
+          <textarea
+            placeholder="Enter your AI query..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+          />
 
-      <br /><br />
-
-      <button onClick={analyzeText}>
-        Analyze
-      </button>
-
-      {result && (
-        <div style={{ marginTop: "20px" }}>
-          <h3>Response:</h3>
-          <p>{result.response}</p>
-          <p><b>Confidence:</b> {result.confidence}</p>
-          <p><b>Explanation:</b> {result.explanation}</p>
-          <p><b>Risk:</b> {result.risk}</p>
+          <button onClick={analyzeText}>
+            {loading ? "Analyzing..." : "Run Analysis"}
+          </button>
         </div>
-      )}
+
+        {result && (
+          <div className="result-card">
+            <h3>AI Audit Result</h3>
+            <p><strong>Response:</strong> {result.response}</p>
+            <p><strong>Confidence:</strong> {result.confidence}</p>
+            <p><strong>Risk Level:</strong> {result.risk}</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
